@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.group.GroupMapper">
+	<resultMap type="com.samsung.smartretail.mcd.vo.group.GroupVO" id="groupList">
+		<id property="groupId" column="group_id" />
+		<result property="groupName" column="group_name"/>
+		<result property="groupDesc" column="group_desc"/>
+		<result property="address" column="address"/>
+		<result property="groupTelNr" column="group_tel_nr"/>
+		<result property="email" column="email"/>
+		<result property="anniversaryDay" column="anniversary_day"/>
+		<result property="isActive" column="is_active"/>
+	</resultMap>
+	<select id="getGroupList" resultMap="groupList">
+		SELECT 	group_id, group_name, group_desc,
+				address, group_tel_nr, email, anniversary_day, 
+				is_active
+		FROM	`group`
+	</select>
+	
+	<select id="getGroupDetail" resultMap="groupList">
+		SELECT 	group_id, group_name, group_desc,
+				address, group_tel_nr, email, anniversary_day, 
+				is_active
+		FROM	`group`
+		WHERE	group_id = #{0}
+	</select>
+	
+	<insert id="createGroup" parameterType="com.samsung.smartretail.mcd.vo.group.GroupVO" useGeneratedKeys="true">
+		INSERT INTO `group` 
+				(group_id, group_name, group_desc, address, group_tel_nr, email, anniversary_day, is_active, create_time, update_time)
+		VALUES
+				(#{groupId}, #{groupName}, #{groupDesc}, #{address}, #{groupTelNr}, #{email}, #{anniversaryDay}, #{isActive}, now(), now())
+		ON DUPLICATE KEY 
+		UPDATE 	group_name = #{groupName},
+				group_desc = #{groupDesc}, 
+				address = #{address},
+				group_tel_nr = #{groupTelNr},
+				email = #{email},
+				is_active = #{isActive},
+				anniversary_day = #{anniversaryDay},
+				update_time = now()
+	</insert>
+</mapper>
+
+	

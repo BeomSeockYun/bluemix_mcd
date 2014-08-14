@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+ 	<settings>
+	  <setting name="cacheEnabled" value="true"/>
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  <setting name="multipleResultSetsEnabled" value="true"/>
+	  <setting name="useColumnLabel" value="true"/>
+	  <setting name="useGeneratedKeys" value="false"/>
+	  <setting name="autoMappingBehavior" value="PARTIAL"/>
+	  <setting name="defaultExecutorType" value="SIMPLE"/>
+	  <setting name="defaultStatementTimeout" value="25"/>
+	  <setting name="safeRowBoundsEnabled" value="false"/>
+	  <setting name="mapUnderscoreToCamelCase" value="false"/>
+	  <setting name="localCacheScope" value="SESSION"/>
+	  <setting name="jdbcTypeForNull" value="OTHER"/>
+	  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+ 	</settings>
+
+    <!-- sqlSessionFactory >> <property name="mapperLocations" value="classpath*:config/mapper/**/*Mapper.xml" /> -->
+ 	 <mappers>
+  		<mapper resource="mapper/preparation/PreparationMapper.xml" />
+  		<mapper resource="mapper/inventory/InventoryMapper.xml" />
+  		<mapper resource="mapper/pos/PosMapper.xml" />
+  		<mapper resource="mapper/dashboard/DashboardMapper.xml" />
+  		<mapper resource="mapper/user/UserMapper.xml" />
+  		<mapper resource="mapper/user/GroupMapper.xml" />
+  		<mapper resource="mapper/analytics/AnalyticsMapper.xml" />
+  		<mapper resource="mapper/login/LoginMapper.xml" />
+  		<mapper resource="mapper/inventory/BatchInventoryMapper.xml" />
+  		<mapper resource="mapper/dashboard/DashboardBatchMapper.xml" />
+ 	</mappers>
+</configuration>

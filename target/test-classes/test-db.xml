@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+		
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd	
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/jee 		http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+		http://mybatis.org/schema/mybatis-spring 		http://mybatis.org/schema/mybatis-spring.xsd
+	" default-autowire="byName">
+
+	<!-- Scans within the base package of the application for @Components to 
+		configure as beans -->
+	<util:properties id="dbProperties" 	location="classpath:/db.properties" />
+	
+	<context:property-placeholder 		properties-ref="dbProperties" />
+		
+
+
+	<!-- <jee:jndi-lookup id="dataSource" jndi-name="java:/comp/env/jdbc/cms" 
+		resource-ref="true" /> -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="#{dbProperties['db.driver']}" />
+		<property name="url" value="#{dbProperties['db.url']}" />
+		<property name="username" value="#{dbProperties['db.username']}" />
+		<property name="password" value="#{dbProperties['db.password']}" />
+		<property name="defaultAutoCommit" value="true" />
+		<property name="initialSize" value="5" />
+		<property name="maxActive" value="20" />
+		<property name="maxIdle" value="5" />
+		<property name="maxWait" value="30000" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true" />
+		<property name="testOnReturn" value="false" />
+		<property name="testWhileIdle" value="true" />
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+	</bean>
+
+
+	<!-- myBATIS 3.2.3 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	    <property name="dataSource" ref="dataSource"></property>
+	    <!-- property name="configLocation" value="classpath:/conf/mybatis/mybatis-mysql-config.xml"></property -->
+	    <property name="mapperLocations" value="classpath*:com/**/*Mapper.xml"></property>
+	    <!-- do not use this transactionFactory because use spring transactionFactory  -->
+		<!-- 
+	    <property name="transactionFactory">
+	        <bean class="org.mybatis.spring.transaction.SpringManagedTransactionFactory"></bean>
+	    </property>
+	  	-->   
+	</bean>	
+	<!-- myBATIS 3.2.3 SqlSessionTemplate -->	
+    <!-- bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+    </bean -->	
+    	
+  	<!--This is added for mapper - dao - controller architecture -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+  		<property name="basePackage" value="com.samsung.smartretail.mcd.dao" />
+	</bean>  
+	
+	<!-- myBATIS 3.2.3 SqlSessionTemplate Transaction Manager -->	
+	<bean id="transactionManager"	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- myBATIS 3.2.3  Transaction Setting -->
+	<tx:annotation-driven transaction-manager="transactionManager"  proxy-target-class="true" />	
+	
+		 
+</beans>

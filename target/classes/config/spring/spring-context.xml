@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+		
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/util 		http://www.springframework.org/schema/util/spring-util.xsd		
+		">
+
+	<util:properties id="appProperties" 	location="classpath:/config/properties/application.properties" />
+	
+	<!-- Scan all @Component & @Repository & @Service except @Controller -->
+	<context:component-scan base-package="com.samsung.smart.retail" >
+	        <!-- Include -->
+	        <!-- context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+	        <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+	        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" / -->
+	</context:component-scan>
+
+		<!-- Scan all @Component & @Repository & @Service except @Controller -->
+	<context:component-scan base-package="com.samsung.smartretail.mcd" >
+	        <!-- Include -->
+	        <!-- context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+	        <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+	        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" / -->
+	</context:component-scan>
+
+	<!-- AOP 설정 -->
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:config/jdbc/jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

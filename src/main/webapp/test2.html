@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+var data = {'listCount' : 2, 'todolist' : [{'idx' : 9, 'is_checked' : 'false'},{'idx' : 8,'is_checked' : 'true'}]};
+var str = JSON.stringify(data);
+
+$.ajax({
+	url : "http://10.240.135.86:8090/rest/v1/smartstore/preparation/createTodolist",
+	type : "POST",
+	contentType : "application/json",
+	data : JSON.stringify(data),
+	success : function(data){
+		alert("success : "+ data.result);
+	}
+})
+
+</script>
+</body>
+</html>

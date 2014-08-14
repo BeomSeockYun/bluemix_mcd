@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+
+<input id="btn1" type="button" value="Send Push!!" />
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+$("#btn1").click(function(){
+	
+	var data = {'registration_ids' : [ "APA91bF9NiWOlNtO4h0AHOfMrGUNBuy2iFy7YBhp70RR7jepumcm1NQjXv7JJS3QfsDExWCy1nfmC1S9u-sm2ZqNU6uAErQ_evCBAZ2LkytHmPi8JdhqN4eVms5H0eTXSRCSRio4Takhh5TxZ3Jyea_wJn9rHffU3g" ],
+			'data' :  { "message" : "hohohohihiho" }};
+	$.ajax({
+		
+		url : "https://android.googleapis.com/gcm/send",
+		type : "POST",
+		headers: {
+            'Authorization': 'key=AIzaSyC2ghYuVhxRIubIcgtYvsdREM_FBDckuQ0'
+        },
+		contentType : "application/json",
+		data : data,
+		success : function(data){
+			alert("success");
+			}
+		
+	});
+	
+});
+
+</script>
+</body>
+</html>

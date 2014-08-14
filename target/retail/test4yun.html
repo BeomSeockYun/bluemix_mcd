@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+/* var data = {"userId":"bs1031@mcd.com","userName":"BS YUN","cellPhoneNr":null,"email":"bs1031@mcd.com","birthday":"1983-07-04","anniversaryDay":"2012-07-04","group":{"groupId":"mcd_0001","groupName":"McDonald (Chicago)"},"role":[{"roleId":"ROLE_USER","roleName":"USER"},{"roleId":"MCD_CREW","roleName":"CREW"},{"roleId":"CHAT_MEMBER","roleName":"MEMBER"}]}; 
+ */
+// user add test.
+//var data = {"userId":"bs1031@mcd.com","userName":"BS YUN","email":"bs1031@mcd.com","birthday":"1983-07-04","anniversaryDay":"2012-07-04","group":{"groupId":"mcd_0001"},"role":[{"roleId":"ROLE_USER"},{"roleId":"MCD_CREW"},{"roleId":"CHAT_MEMBER"}]}; 
+
+// add group.
+//var data={"groupId":"mcd_0001","groupName":"McDonald (Chicago)","groupDesc":"McDonald in Chicago","isActive":"1"}
+// refilll order.test 
+var data={"groupId":"mcd_0001","orderItems":[{"itemId":"item_00016","quantity":"100"},{"itemId":"item_00009", "quantity":"100"}]}
+
+
+var str = JSON.stringify(data);
+
+$(document).ready(function(){
+  $("button").click(function(){
+    $.ajax({
+    	url:"http://localhost:8080/retail/v1/smartstore/inventory/createOrderItems",
+    	//url:"http://localhost:8080/retail/v1/smartstore/user/createUser",
+    	//url:"http://localhost:8080/retail/v1/smartstore/group/createGroup",
+    	 headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    	type:"POST",
+    	dataType:"json",
+    	data : JSON.stringify(data),
+    	success:function(result){
+      $("#div1").html(result);
+    }});
+  });
+});
+</script>
+</head>
+<body>
+
+<div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
+<button>Get External Content</button>
+
+</body>
+</html>

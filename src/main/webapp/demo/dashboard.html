@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 부트스트랩 -->
+    <link href="../resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="page-header" align="center">
+<h1>Legacy Simulation
+<small>Push Test</small></h1>
+</div>
+<br><br>
+
+<ul class="nav nav-tabs">
+  <li><a href="main.html">main</a></li>
+  <li class="active"><a href="#">Dashboard</a></li>
+  <li><a href="analytics.html">Analytics</a></li>
+  <li><a href="inventory.html">Inventory</a></li>
+  <li><a href="datainput.html">Data Input</a></li>
+</ul>
+<br><br>
+
+<div align="center">
+<table calss="table">
+<tr align="center">
+<td><h3>Product Name</h3></td>
+</tr>
+
+<tr align="center">
+<td>
+<select id="product_name" class="form-control">
+<option value="Big Mac">Bic Mac</option>
+<option value="Crunch Burger">Crunch Burger</option>
+<option value="Veggle Burger">Veggle Burger</option>
+<option value="Quarter Pounder With Cheese">Quarter Pounder With Cheese</option>
+<option value="Daily Double">Daily Double</option>
+</select>
+</td>
+</tr>
+
+<tr align="center">
+<td><h3>Sales Count</h3></td>
+</tr>
+<tr align="center">
+<td>
+<input type="number" id="product_count" class="form-control" placeholder="Number input"/>
+</td>
+</tr>
+
+<tr align="center">
+<td>
+<br><br>
+<button type="button"class="btn btn-primary btn-lg btn-block" id="dashboardBtn">PUSH</button>
+</td>
+</tr>
+
+</table>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+// dashboard ajax
+$("#dashboardBtn").click(function(){
+	
+	var product_name = $("#product_name").val();
+	var product_count = $("#product_count").val();
+	
+	var data = {"product_name" : product_name,"product_count" : product_count};
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/dashboard/insertDamoData",
+		type : "post",
+		data : data,
+		success : function(data){
+			alert(data);
+		}
+	});
+	
+});
+</script>
+
+</body>
+</html>

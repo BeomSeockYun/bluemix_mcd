@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.inventory.InventoryMapper">
+	<resultMap type="com.samsung.smartretail.mcd.vo.inventory.InventoryVO" id="getInventoryList">
+		<result property="itemId" column="item_id" />
+		<result property="itemName" column="item_name" />
+		<result property="groupId" column="group_id" />
+		<result property="groupName" column="group_name" />
+		<result property="currentLevel" column="current_level" />
+		<result property="minimumLevel" column="memimum_level" />
+		<result property="alarmLevel" column="alarm_level" />
+		<result property="recommendedLevel" column="recommended_level" />
+		<result property="categoryId" column="category_id" />
+		<result property="categoryName" column="category_name" />
+		<result property="levelUnit" column="item_unit" />
+		<result property="remainingPercent" column="remaining_percent" />
+	</resultMap>
+	
+	<!-- 공통 사용 되는 select query 부분 정의-->
+	<sql id = "itemColumns_1">
+		s.item_id as item_id, 
+		i.item_name as item_name, 
+		s.group_id	as group_id, 
+		g.group_name as group_name,
+		s.current_level, s.minimum_level, s.alarm_level,
+		s.recommended_level, 
+		s.category_id,
+		c.category_name,
+		i.item_unit as item_unit,
+		concat(round((s.current_level/s.recommended_level * 100 ),2),'%') as remaining_percent
+	</sql>
+	<sql id = "tables_1">
+		stock_inventory s
+		left outer join `category_info` as c on s.category_id = c.category_id, 
+		`group` as g, 
+		item as i 
+	</sql>
+	<sql id = "where_common_1">
+		s.group_id = #{0}
+	  	AND		s.item_id = i.item_id
+        AND 	s.group_id = g.group_id
+	</sql>
+		
+	<select id="getItemList" resultMap="getInventoryList">
+		SELECT	<include refid="itemColumns_1"/>
+		FROM 	<include refid="tables_1"/>
+		WHERE 	<include refid="where_common_1"/>
+	</select>
+	
+	<select id="getMultiItemDetail" resultMap="getInventoryList" parameterType="HashMap" >
+		SELECT	<include refid="itemColumns_1"/>
+		FROM 	<include refid="tables_1"/>
+		WHERE 	s.group_id = #{groupId}
+	  	AND		s.item_id in (
+	  				<foreach collection="itemIds" item="item" separator=",">
+	  					#{item}
+	  				</foreach>
+	  			)	
+        AND 	s.group_id = g.group_id
+        AND		s.item_id = i.item_id	
+	</select>
+	
+	<select id="getItemDetail" resultMap="getInventoryList">
+		SELECT	<include refid="itemColumns_1"/>
+		FROM 	<include refid="tables_1"/>
+		WHERE 	<include refid="where_common_1"/> 	
+		  AND	s.item_Id = #{1}
+	</select>
+		
+	<select id="getShortageItems" resultMap="getInventoryList">
+		SELECT 	<include refid="itemColumns_1"/>
+		FROM 	<include refid="tables_1"/>
+		WHERE 	<include refid="where_common_1"/>
+		<![CDATA[
+		  AND	s.current_level <= s.alarm_level
+		]]>
+	</select>
+	
+	<!--  //TODO : get top selling product(menu) from sales data. -->
+    <select id="getTopLinkItems" resultMap="getInventoryList">
+		<![CDATA[
+		SELECT 	s.item_id as item_id, 
+				i.item_name as item_name, 
+				s.group_id	as group_id, 
+				g.group_name as group_name,
+				s.current_level, s.minimum_level, s.alarm_level,
+				s.recommended_level, 
+				s.category_id,
+				c.category_name,
+				i.item_unit as item_unit,
+				concat(round((s.current_level/s.recommended_level * 100 ),2),'%') as remaining_percent
+		FROM
+				stock_inventory s
+				left outer join `category_info` as c on s.category_id = c.category_id, 
+				`group` as g, 
+				item as i,
+				(SELECT distinct item_id
+				 FROM bom as bom,
+					(SELECT product_id, sum(product_count) as cnt
+					FROM dashboard 
+					WHERE group_id = #{0} 
+					AND sales_date >= #{2}
+					AND sales_date < #{3} 
+					group by product_id
+					order by cnt desc
+					limit #{1} ) AS dash
+				WHERE bom.product_id = bom.product_id) as top_item
+		WHERE 
+				s.group_id = #{0}
+				AND		s.item_id = top_item.item_id
+			  	AND		s.item_id = i.item_id
+		        AND 	s.group_id = g.group_id
+		]]>
+	</select>
+	
+	<!-- refill order. currentLevel만 업데이트 -->
+	<insert id="createOrderItems" parameterType="java.util.List" useGeneratedKeys="true">
+		INSERT INTO stock_action_history (group_id, item_id, action, value_of_stock, op_date)
+		VALUES
+		<foreach collection="list" item="ele" index="index" separator=",">
+		 (#{ele.groupId}, #{ele.itemId}, #{ele.action}, #{ele.valueOfStock}, now())
+		</foreach>
+	</insert>
+	
+	<update id="updateDemodata" parameterType="java.util.Map">
+		UPDATE stock_inventory SET current_level = #{current_level}, update_datetime=now() WHERE item_id='item_00009' or item_id='item_00016';
+	</update>
+	
+</mapper>
+
+	

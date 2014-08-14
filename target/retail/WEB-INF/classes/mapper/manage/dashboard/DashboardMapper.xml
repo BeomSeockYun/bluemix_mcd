@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.dashboard.DashboardMapper">
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.dashboard.DashboardVO" id="dashboard">
+		<result property="idx" column="idx" />
+		<result property="group_id" column="group_id" />
+		<result property="product_id" column="product_id" />
+		<result property="product_name" column="product_name" />
+		<result property="product_count" column="product_count" />
+		<result property="product_price" column="product_price" />
+		<result property="sales_date" column="sales_date" />
+		<result property="total_price" column="total_price" />
+	</resultMap>
+	
+	<select id="getSalesPerformancePrice" parameterType="hashmap" resultMap="dashboard">
+		SELECT sales_date, SUM(product_total_price) total_price FROM dashboard WHERE group_id=#{group_id}
+		<choose>
+			<when test="start_date != null and end_date != null">
+				AND DATE_FORMAT(sales_date,'%Y-%m-%d') BETWEEN DATE_FORMAT(#{start_date},'%Y-%m-%d') AND DATE_FORMAT(#{end_date},'%Y-%m-%d')
+				GROUP BY DATE_FORMAT(sales_date,'%Y-%m-%d')
+			</when>
+			<when test="start_date != null and end_date == null">
+				AND DATE_FORMAT(sales_date,'%Y-%m-%d') BETWEEN DATE_FORMAT(#{start_date},'%Y-%m-%d') AND DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+				GROUP BY DATE_FORMAT(sales_date,'%Y-%m-%d')
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(sales_date,'%Y-%m-%d') = DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+				GROUP BY DATE_FORMAT(sales_date,'%Y-%m-%d')
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getSalesPerformanceProduct" resultMap="dashboard">
+		SELECT product_name, sum(product_count) product_count, product_price , sales_date FROM dashboard WHERE group_id=#{group_id}
+		<choose>
+			<when test="sales_date != null">
+				AND DATE_FORMAT(sales_date,'%Y-%m-%d') = DATE_FORMAT(#{sales_date},'%Y-%m-%d')
+				GROUP BY product_id ORDER BY SUM(product_count) DESC;
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(sales_date,'%Y-%m-%d') = DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+				GROUP BY product_id ORDER BY SUM(product_count) DESC;
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

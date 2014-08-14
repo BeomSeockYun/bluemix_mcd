@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.analytics.AnalyticsMapper">
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.analytics.AnalyticsVO"
+		id="analyticsData">
+		<result property="idx" column="idx" />
+		<result property="event_info" column="event_info" />
+<!-- 	<result property="event_type" column="event_type" /> 	-->
+		<result property="attendance_group" column="attendance_group" />
+		<result property="attendance_count" column="attendance_count" />
+		<result property="start_schedule" column="start_schedule" />
+		<result property="end_schecule" column="end_schecule" />
+		<result property="location" column="location" />
+		<result property="distance" column="distance" />
+		<result property="alert_time" column="alert_time" />
+		<result property="alert_confirm" column="alert_confirm" />
+	</resultMap>
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.analytics.ForecastVO"
+		id="forecastData">
+<!--
+		<result property="idx" column="idx" />
+		<result property="event_info" column="event_info" />
+-->
+		<result property="period_time" column="period_time" />
+		<result property="traffic_time" column="traffic_time" />
+		<result property="customer_cnt" column="customer_cnt" />
+<!--
+		<result property="bigmac_cnt" column="bigmac_cnt" />
+		<result property="beverage_cnt" column="beverage_cnt" />
+		<result property="frenchfry_cnt" column="frenchfry_cnt" />
+
+		<result property="total_kitchen_crew" column="total_kitchen_crew" />
+		<result property="total_serving_crew" column="total_serving_crew" />
+-->
+	</resultMap>
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.analytics.PastVisitorInfo"
+		id="pastVisitorData">
+		<result property="period_time" column="period_time" />
+		<result property="customer_cnt" column="customer_cnt" />
+<!--
+		<result property="bigmac_cnt" column="bigmac_cnt_past" />
+		<result property="beverage_cnt" column="beverage_cnt_past" />
+		<result property="frenchfry_cnt" column="frenchfry_cnt_past" />
+
+		<result property="total_kitchen_crew" column="total_kitchen_crew_past" />
+		<result property="total_serving_crew" column="total_serving_crew_past" />
+-->
+	</resultMap>
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.analytics.TodayVisitorInfo"
+		id="todayVisitorData">
+		<result property="period_time" column="period_time" />
+		<result property="customer_cnt" column="customer_cnt" />
+<!--
+		<result property="bigmac_cnt" column="bigmac_cnt_real" />
+		<result property="beverage_cnt" column="beverage_cnt_real" />
+		<result property="frenchfry_cnt" column="frenchfry_cnt_real" />
+
+		<result property="total_kitchen_crew" column="total_kitchen_crew_real" />
+		<result property="total_serving_crew" column="total_serving_crew_real" />
+-->
+	</resultMap>
+
+	<insert id="insertForecastData" useGeneratedKeys="true"	keyProperty="idx" keyColumn="idx" parameterType="map">
+		INSERT INTO forecast(idx,event_info,period_time,traffic_time,customer_cnt)
+		VALUES(#{idx},'default',#{period_time},#{traffic_time},#{customer_count});
+	</insert>
+
+	<insert id="insertHistoryData" useGeneratedKeys="true"	keyProperty="idx" keyColumn="idx" parameterType="map">
+		INSERT INTO visitor_history(idx,period_time,customer_cnt)
+		VALUES(#{idx},#{period_time},#{customer_count});
+	</insert>
+
+	<insert id="insertTodayData" useGeneratedKeys="true"	keyProperty="idx" keyColumn="idx" parameterType="map">
+		INSERT INTO visitor_today(idx,period_time,customer_cnt)
+		VALUES(#{idx},#{period_time},#{customer_count});
+	</insert>
+
+	<delete id="deleteForecastInfo">
+		DELETE FROM forecast;
+	</delete>
+
+	<delete id="deleteTodayInfo">
+		DELETE FROM visitor_today;
+	</delete>
+
+	<delete id="deleteHistoryInfo">
+		DELETE FROM visitor_history;
+	</delete>
+
+	<insert id="insertAnalyticsData" useGeneratedKeys="true"
+		keyProperty="idx">
+		INSERT INTO analytics(event_info)
+		VALUES(#{product_name});
+	</insert>
+
+	<select id="getAnalytics" resultMap="analyticsData">
+		SELECT * FROM analytics;
+	</select>
+
+	<select id="getForecastData" resultMap="forecastData" parameterType="java.util.Map">
+		select * from forecast where period_time between date_format(#{start_date},'%Y-%m-%d') and date_format(#{end_date},'%Y-%m-%d');
+	</select>
+
+	<select id="getPastInfo" resultMap="pastVisitorData" parameterType="java.util.Map">
+		select * from visitor_history where period_time between date_format(#{start_date},'%Y-%m-%d') and date_format(#{end_date},'%Y-%m-%d');
+	</select>
+
+	<select id="getTodayInfo" resultMap="todayVisitorData" parameterType="java.util.Map">
+		select * from visitor_today where period_time between date_format(#{start_date},'%Y-%m-%d') and date_format(#{end_date},'%Y-%m-%d');
+	</select>
+
+	<update id="insertDemodata" parameterType="java.util.Map">
+		update forecast set customer_cnt = #{customer_cnt} where period_time = #{period_time};	
+	</update>
+
+	<insert id="insertAlertdata" parameterType="java.util.Map">	
+		insert into analytics(alert_time) values(NOW());
+	</insert>
+
+</mapper>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 부트스트랩 -->
+    <link href="../resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="page-header" align="center">
+<h1>Legacy Simulation
+<small>Push Test</small></h1>
+</div>
+<br><br>
+
+<ul class="nav nav-tabs">
+  <li><a href="main.html">main</a></li>
+  <li><a href="dashboard.html">Dashboard</a></li>
+  <li><a href="analytics.html">Analytics</a></li>
+  <li><a href="inventory.html">Inventory</a></li>
+  <li class="active"><a href="#">Data Input</a></li>
+</ul>
+<br><br>
+
+<!-- analytics -->
+<div align="center">
+<table calss="table">
+<tr align="center">
+<td><h3>Analytics Data Input</h3></td>
+</tr>
+
+<tr align="center">
+<td>
+<button type="button" class="btn btn-danger btn-lg btn-block" id="analyticsBtn">Data Input</button>
+</td>
+</tr>
+
+<tr><td><br></td></tr>
+
+<tr align="center">
+<td><h3>Dashboard Data Input</h3></td>
+</tr>
+
+<tr>
+<td><input type="date" class="form-control" id="dashboardDate"></td>
+</tr>
+
+<tr align="center">
+<td>
+<button type="button" class="btn btn-danger btn-lg btn-block" id="dashboardBtn1">Data Input</button>
+</td>
+</tr>
+
+<tr><td><br></td></tr>
+
+<tr align="center">
+<td><h3>happiness Data Input</h3></td>
+</tr>
+
+<tr>
+<td><input type="date" class="form-control" id="happinessdate"></td>
+</tr>
+
+<tr align="center">
+<td>
+<button type="button" class="btn btn-danger btn-lg btn-block" id="dashboardBtn2">Data Input</button>
+</td>
+</tr>
+
+<tr><td><br></td></tr>
+
+<tr align="center">
+<td><h3>Todolist Data Input</h3></td>
+</tr>
+
+<tr>
+<td><input type="date" class="form-control" id="todolistdate"></td>
+</tr>
+
+<tr align="center">
+<td>
+<button type="button" class="btn btn-danger btn-lg btn-block" id="todolistBtn">Data Input</button>
+</td>
+</tr>
+ 
+</table>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+//Analytics Data Input
+$("#analyticsBtn").click(function(){
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/analytics/insertSampleData",
+		type : "GET",
+		success : function(data){
+			alert(data);
+		}
+	});
+	
+});
+
+//dashboard sales Data Input
+$("#dashboardBtn1").click(function(){
+	
+	var sales_date = $("#dashboardDate").val();
+	
+	data = {"sales_date" : sales_date}
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/dashboard/insertDashboardData",
+		type : "POST",
+		data : data,
+		success : function(data){
+			alert(data.result);
+		}
+	});
+	
+});
+
+//happiness Data Input
+$("#dashboardBtn2").click(function(){
+	
+	var date = $("#happinessdate").val();
+	
+	data = {"date" : date}
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/dashboard/insertHappinessData",
+		type : "GET",
+		data : data,
+		success : function(data){
+			alert(data.result);
+		}
+	});
+	
+});
+
+//todolist Data Input
+$("#todolistBtn").click(function(){
+	
+	var start_date = $("#todolistdate").val();
+	
+	data = {"start_date" : start_date,"end_date" : start_date}
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/preparation/insertTodolist",
+		type : "GET",
+		data : data,
+		success : function(data){
+			alert(data.result);
+		}
+	});
+	
+});
+
+</script>
+
+</body>
+</html>

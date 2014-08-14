@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/jdbc 		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/util 		http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/context 	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx 	  	http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://mybatis.org/schema/mybatis-spring 		http://mybatis.org/schema/mybatis-spring.xsd
+		http://www.springframework.org/schema/task 	  http://www.springframework.org/schema/task/spring-task-3.0.xsd	
+		"  >
+
+ 
+
+	<util:properties id="dbProperties" 	location="classpath:/config/jdbc/jdbc.properties" />
+	<context:property-placeholder 		properties-ref="dbProperties" />
+	
+<!-- ***** DataSoruce **** -->
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
+<property name="driverClassName" value="#{dbProperties['jdbc.driverClassName']}" />
+<property name="url" value="#{dbProperties['jdbc.url']}" />
+<property name="username" value="#{dbProperties['jdbc.username']}" />
+<property name="password" value="#{dbProperties['jdbc.password']}" />
+</bean>
+ 	
+<bean id="jobRepository"
+	class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+	<property name="dataSource" ref="dataSource" />
+	<property name="transactionManager" ref="transactionManager" />
+	<property name="tablePrefix" value="BATCH_" />
+	<!-- Spring Batch에서 지원되는 데이터베이스 타입 : DERBY, DB2, DB2ZOS, HSQL, SQLSERVER, MYSQL, ORACLE, POSTGRES, SYBASE, H2 -->
+	<property name="databaseType" value="mysql" />
+</bean>
+
+<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	<property name="jobRepository" ref="jobRepository" />
+</bean>
+
+  <!-- create job-meta tables automatically -->
+  <!-- jdbc:initialize-database data-source="dataSource">
+	<jdbc:script location="org/springframework/batch/core/schema-drop-mysql.sql" />
+	<jdbc:script location="org/springframework/batch/core/schema-mysql.sql" />
+  </jdbc:initialize-database -->
+ 
+  
+		
+   <bean id="sampleService" class="com.samsung.smartretail.mcd.service.batch.sample.impl.SampleServiceImpl" />
+
+<!-- myBATIS 3.2.3 SqlSessionTemplate Transaction Manager -->	
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager" lazy-init="true">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<context:component-scan base-package="com" />
+	<!-- @Scheduled annotation Setting -->	
+	<task:annotation-driven/>	
+
+	<!-- myBATIS 3.2.3  Transaction Setting -->
+	<tx:annotation-driven transaction-manager="transactionManager"  proxy-target-class="true" />
+
+
+	<!-- myBATIS 3.2.3 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	    <property name="dataSource" ref="dataSource" />
+	    <property name="configLocation" value="classpath:config/mybatis/mybatis-batch-config.xml" />
+	    <property name="mapperLocations" value="classpath*:config/com/**/*Mapper.xml" />
+	    <!-- do not use this transactionFactory because use spring transactionFactory  -->
+		<!-- 
+	    <property name="transactionFactory">
+	        <bean class="org.mybatis.spring.transaction.SpringManagedTransactionFactory"></bean>
+	    </property>
+	  	-->   
+	</bean>	
+
+	<!--This is added for mapper - dao - controller architecture -->
+	<bean class='org.mybatis.spring.mapper.MapperScannerConfigurer'>
+  		<property name='basePackage' value='com.samsung.smartretail.mcd.dao' />
+	</bean>
+
+
+   <!-- START Batch Job  -->
+	<batch:job id="daily1">	
+		<batch:step id="daily1_step1" next="daily1_step2">
+			<batch:tasklet>
+			<!-- 만약 commit-interval이 5고, 총 100건을 돌린다 할 때 5개 단위로 가고, 중간에 실패하면 5 단위로 된 곳부터 시작한다고 함. -->
+				<batch:chunk reader="reader1" writer="writer1"	commit-interval="1">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="daily1_step2" next="daily1_step3">
+			<batch:tasklet>
+				<batch:chunk reader="readMember" writer="writer2"	commit-interval="2"></batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="daily1_step3">
+			<batch:tasklet>
+				<batch:chunk reader="reader3" writer="writer3"	commit-interval="1"></batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+    <bean id="readMember" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
+      <property name="dataSource" ref="dataSource" />
+      <property name="sql"
+          value=" SELECT mbr_id , mbr_nm  FROM batch_tb_cm_mbr WHERE 1=1   " />
+      <property name="rowMapper">
+          <bean class="com.samsung.smartretail.mcd.batch.item.sample.MemberRowMapper" />
+      </property>
+    </bean>
+    
+  <bean id="myLauncher1" class="com.samsung.smartretail.mcd.batch.launcher.sample.MyLauncher">
+    <property name="jobLauncher" ref="jobLauncher" />
+    <property name="job" ref="daily1" />
+    <property name="dateFormat" value="yyyyMM" />
+ 	<property name="retryYn" value="y" />
+	<property name="targetDate">
+		<bean class="java.util.Date" />
+	</property>  
+  </bean>
+   <!-- END Batch Job  -->
+   
+   <!-- START Batch Job  -->
+ 	<batch:job id="reportJob">
+		<batch:step id="step1">
+			<batch:tasklet>
+				<batch:chunk reader="cvsFileItemReader" writer="mysqlItemWriter"
+					commit-interval="2">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+   <bean id="report" class="com.samsung.smartretail.mcd.vo.batch.sample.ReportVO" scope="prototype" />
+	<bean id="cvsFileItemReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+		<!-- Read a csv file -->
+		<property name="resource" value="classpath:cvs/report.csv" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names" value="date,impressions,clicks,earning" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+				    <!-- return back to reader, rather than a mapped object. -->
+				    <!-- <bean class="org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper" />
+				    -->		      
+					<!-- map to an object -->
+					<bean class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="report" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<bean id="mysqlItemWriter"
+		class="org.springframework.batch.item.database.JdbcBatchItemWriter">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<value>
+            <![CDATA[        
+            	insert into BATCH_RAW_REPORT(DATE,IMPRESSIONS,CLICKS,EARNING) values (:date, :impressions, :clicks, :earning)
+            ]]>
+			</value>
+		</property>
+		<!-- It will take care matching between object property and sql name parameter -->
+		<property name="itemSqlParameterSourceProvider">
+			<bean  class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
+		</property>
+	</bean>
+	  <bean id="myLauncher2" class="com.samsung.smartretail.mcd.batch.launcher.sample.MyLauncher">
+	    <property name="jobLauncher" ref="jobLauncher" />
+	    <property name="job" ref="reportJob" />
+	    <property name="dateFormat" value="yyyyMM" />
+	 	<property name="retryYn" value="y" />
+		<property name="targetDate">
+			<bean class="java.util.Date" />
+		</property>  
+	  </bean>	
+   <!-- END Batch Job  -->
+   
+    <!-- START Batch Job  -->
+ 	<batch:job id="hourly1">	
+		<batch:step id="hourly1_step1"   parent="stepParent">
+			<batch:tasklet>
+			<!-- 만약 commit-interval이 5고, 총 100건을 돌린다 할 때 5개 단위로 가고, 중간에 실패하면 5 단위로 된 곳부터 시작한다고 함. rollback count = 1 exe + 3 retry -->
+				<batch:chunk reader="dummyReader" writer="apiCallWriter" commit-interval="1" retry-limit="3" >
+				    <batch:retryable-exception-classes> 
+				        <batch:include class="java.lang.Exception"/>
+			   		 </batch:retryable-exception-classes>
+				</batch:chunk>
+				 <batch:listeners>
+            		<batch:listener ref="sampleListener"/>
+        		</batch:listeners>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	<bean id="sampleListener" scope="step" class="com.samsung.smartretail.mcd.batch.listener.sample.CustomStepExecutionListener">
+		 <property name="jobId" value="#{stepExecutionContext[JOB_ID]}" />
+		 <property name="runDate" value="#{jobParameters['RUN_DATE']}" />
+	</bean>
+	
+	
+	<!-- setting delay time for a retry  -->
+	<bean id="stepParent"   class="org.springframework.batch.core.step.factory.FaultTolerantStepFactoryBean" abstract="true">
+	  <property name="backOffPolicy">
+	    <bean class="org.springframework.retry.backoff.FixedBackOffPolicy">
+	      <property name="backOffPeriod" value="2000"/>
+	    </bean>
+	  </property>
+	</bean>
+	
+  <bean id="myLauncher3" class="com.samsung.smartretail.mcd.batch.launcher.sample.MyLauncher">
+    <property name="jobLauncher" ref="jobLauncher" />
+    <property name="job" ref="hourly1" />
+    <property name="dateFormat" value="yyyyMM" />
+ 	<property name="retryYn" value="y" />
+	<property name="targetDate">
+		<bean class="java.util.Date" />
+	</property>  
+  </bean>
+   <!-- END Batch Job  -->
+  		
+  		
+  		
+ <bean id="jobLauncherTestUtils1" class="org.springframework.batch.test.JobLauncherTestUtils" >
+    <property name="job" ref="daily1"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="jobLauncher" ref="jobLauncher"/>
+</bean>
+
+ <bean id="jobLauncherTestUtils2" class="org.springframework.batch.test.JobLauncherTestUtils" >
+    <property name="job" ref="reportJob"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="jobLauncher" ref="jobLauncher"/>
+</bean>
+
+ <bean id="jobLauncherTestUtils3" class="org.springframework.batch.test.JobLauncherTestUtils" >
+    <property name="job" ref="hourly1"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="jobLauncher" ref="jobLauncher"/>
+</bean>
+
+</beans>

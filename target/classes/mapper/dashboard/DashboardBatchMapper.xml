@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.batch.dashboard.DashboardBatchMapper">
+	
+	<select id="selectData" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT dashboard_switch FROM dashswitch WHERE dashboard_index = #{dashboard_index}
+	</select>
+	
+	<update id="insertData" parameterType="java.util.Map">
+		UPDATE dashswitch SET dashboard_switch=true WHERE dashboard_index = #{dashboard_index}
+	</update>
+	
+	<select id="lastData" resultType="java.lang.Integer">
+		select max(idx) idx from dashboard;
+	</select>
+	
+</mapper>

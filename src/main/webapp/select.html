@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+
+<table border="1" cellspacing="1">
+<thead>
+<tr>
+<th>Index</th>
+<th>Name</th>
+<th>Price</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="dataBody">
+</tbody>
+</table>
+
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+
+$.ajax({
+	url : "http://localhost:8090/retail/getPosData",
+	type : "GET",
+	dataType : "json",
+	success : function(data){
+		var todolist = data.todolist;
+		
+		for(var i=0;i<data.totalCount;i++){
+			$("#dataBody").append("<tr><td>"+todolist[i].index+"</td>"+
+					"<td>"+todolist[i].product_name+"</td>"+
+					"<td>"+todolist[i].product_price+"</td>"+
+					"<td>"+todolist[i].product_count+"</td></tr>"
+					);
+		}
+	}
+})
+
+</script>
+
+</body>
+</html>

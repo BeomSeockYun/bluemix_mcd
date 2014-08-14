@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 부트스트랩 -->
+    <link href="../resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="page-header" align="center">
+<h1>Legacy Simulation
+<small>Push Test</small></h1>
+</div>
+<br><br>
+
+<ul class="nav nav-tabs">
+  <li><a href="main.html">main</a></li>
+  <li><a href="dashboard.html">Dashboard</a></li>
+  <li><a href="analytics.html">Analytics</a></li>
+  <li class="active"><a href="#">Inventory</a></li>
+  <li><a href="datainput.html">Data Input</a></li>
+</ul>
+<br><br>
+
+<div align="center">
+<table calss="table">
+<tr align="center">
+<td><h3>Current Count</h3></td>
+</tr>
+
+<tr align="center">
+<td>
+<input type="number" id="current_level" class="form-control" placeholder="Number input"/>
+</td>
+</tr>
+
+<tr align="center">
+<td>
+<br><br>
+<button type="button"class="btn btn-primary btn-lg btn-block" id="inventoryBtn">PUSH</button>
+</td>
+</tr>
+
+</table>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+//inventory ajax
+$("#inventoryBtn").click(function(){
+	
+	var current_level = $("#current_level").val();
+	
+	var data = {"current_level" : current_level};
+	
+	$.ajax({
+		url : "/retail/v1/smartstore/inventory/updateDemodata",
+		type : "post",
+		data : data,
+		success : function(data){
+			alert(data);
+		}
+	});
+	
+});
+
+</script>
+
+</body>
+</html>

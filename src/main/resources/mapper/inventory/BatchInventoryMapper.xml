@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.batch.inventory.BatchInventoryMapper">
+	<resultMap type="com.samsung.smartretail.mcd.vo.batch.inventory.HourlyInventoryVO" id="batchItemList">
+		<result property="itemId" column="item_id" />
+		<result property="groupId" column="group_id" />
+		<result property="decreaseCount" column="decrease_count" />
+	</resultMap>
+
+    <select id="getItemCountForHourlyBatch" resultMap="batchItemList">
+    <![CDATA[ 
+		SELECT  ret.item_id AS item_id, 
+			sum(ret.ex_count) AS decrease_count , 
+			ret.group_id AS group_id
+		FROM	
+		(SELECT bom.item_id as item_id, 
+				dash.group_id as group_id, 
+				(count * bom.value_of_need) as ex_count
+		 FROM bom AS bom , 
+			(SELECT group_id, product_id AS product_id, sum(product_count) AS count 
+			 FROM dashboard 
+			 WHERE sales_date >=  #{0}
+			   AND sales_date <= #{1}
+			GROUP BY product_id) AS dash
+		 	WHERE bom.product_id = dash.product_id
+		 ) ret
+		GROUP BY item_id, group_id
+	]]>
+	</select>
+	<!--  아래 foreach 는 실행 실패함...ㅡ.ㅡ -->
+	<update id="updateForHourlyBatch" parameterType="java.util.List">
+      <foreach collection="list" item="inventoryVo" >
+      <![CDATA[ 
+       	 UPDATE stock_inventory 
+       	 SET current_level = 
+       	 IF((current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}) <= 0, 0, (current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}))
+       	 WHERE group_id = #{inventoryVo.groupId, jdbcType=VARCHAR} AND item_id = #{inventoryVo.itemId, jdbcType=VARCHAR};
+       	 ]]>
+      </foreach>
+	</update>
+	
+	<update id="updateOneForHourlyBatch" parameterType="com.samsung.smartretail.mcd.vo.batch.inventory.HourlyInventoryVO">
+        UPDATE stock_inventory
+         <set>
+         <![CDATA[
+           current_level = IF((current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}) <= 0, 0, (current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}))
+       	 WHERE group_id = #{inventoryVo.groupId, jdbcType=VARCHAR} AND item_id = #{inventoryVo.itemId, jdbcType=VARCHAR};
+       	  	 ]]>
+         </set>
+         <where>
+           group_id = #{groupId, jdbcType=VARCHAR} AND item_id = #{itemId, jdbcType=VARCHAR};
+         </where>
+	</update>
+	
+	
+	<update id="updateOrderItem" parameterType="com.samsung.smartretail.mcd.vo.inventory.StockActionHistoryVO">
+        UPDATE stock_inventory
+         <set>
+           current_level = (current_level + #{valueOfStock,javaType=int,jdbcType=NUMERIC})
+         </set>
+         <where>
+           group_id = #{groupId, jdbcType=VARCHAR} AND item_id = #{itemId, jdbcType=VARCHAR};
+         </where>
+	</update>
+	<update id="updateStockHistory" parameterType="com.samsung.smartretail.mcd.vo.inventory.StockActionHistoryVO">
+        UPDATE stock_action_history
+         <set>
+           action = 3
+         </set>
+         <where>
+           sn = #{sn};
+         </where>
+	</update>
+	<resultMap type="com.samsung.smartretail.mcd.vo.inventory.InventoryVO" id="inventoryList">
+		<result property="itemId" column="item_id" />
+		<result property="itemName" column="item_name" />
+		<result property="groupId" column="group_id" />
+		<result property="groupName" column="group_name" />
+		<result property="currentLevel" column="current_level" />
+		<result property="minimumLevel" column="memimum_level" />
+		<result property="alarmLevel" column="alarm_level" />
+		<result property="recommendedLevel" column="recommended_level" />
+		<result property="categoryId" column="category_id" />
+		<result property="categoryName" column="category_name" />
+		<result property="levelUnit" column="item_unit" />
+		<result property="remainingPercent" column="remaining_percent" />
+	</resultMap>	
+	<select id="getShortageItem" resultMap="inventoryList">
+    <![CDATA[ 
+		SELECT  	s.item_id as item_id, 
+					i.item_name as item_name, 
+					s.group_id	as group_id, 
+					g.group_name as group_name,
+					s.current_level, s.minimum_level, s.alarm_level,
+					s.recommended_level, 
+					s.category_id,
+					c.category_name,
+					i.item_unit as item_unit,
+					concat(round((s.current_level/s.recommended_level * 100 ),2),'%') as remaining_percent
+		FROM	
+					stock_inventory s
+					left outer join `category_info` as c on s.category_id = c.category_id, 
+					`group` as g, 
+					item as i 
+		WHERE		s.current_level <= s.alarm_level
+		AND			update_datetime BETWEEN DATE_ADD(now(), INTERVAL -15 second) AND now()
+		AND			s.item_id = i.item_id
+        AND 		s.group_id = g.group_id
+	]]>
+	</select>
+	
+</mapper>
+
+	

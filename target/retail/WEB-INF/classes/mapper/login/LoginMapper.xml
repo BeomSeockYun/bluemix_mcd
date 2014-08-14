@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.auth.login.LoginMapper">
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.auth.login.loginVO" id="loginData">
+		<result property="userId" column="user_id" />
+		<result property="password" column="password" />
+		<result property="is_account_non_expired" column="is_account_non_expired" />
+		<result property="is_account_non_locked" column="is_account_non_locked" />
+		<result property="is_credentials_non_expired" column="is_credentials_non_expired" />
+		<result property="is_enabled" column="is_enabled" />
+		<result property="unlock_try" column="unlock_try" />
+		<result property="account_expire_date" column="account_expire_date" />
+		<result property="cedentials_expire_date" column="cedentials_expire_date" />
+		<result property="disabled_date" column="disabled_date" />
+		<result property="push_register_key" column="push_register_key" />
+	</resultMap>
+	
+	<select id="loginUser" resultMap="loginData">
+		SELECT password  FROM preludebuser WHERE user_id=#{userId};
+	</select>
+	
+	<select id="logoutUser" resultMap="loginData">
+		SELECT user_id FROM preludebuser WHERE user_id=#{userId};
+	</select>
+	
+	<update id="insertRegistrationId" parameterType="java.util.Map" >
+		UPDATE user SET push_register_key=#{registration_id} WHERE user_id=#{user_id};
+	</update>
+	
+</mapper>

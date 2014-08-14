@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- 부트스트랩 -->
+		<link href="../resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<title>Insert title here</title>
+	</head>
+	<body>
+
+		<div class="page-header" align="center">
+			<h1>Legacy Simulation <small>Push Test</small></h1>
+		</div>
+		<br>
+		<br>
+
+		<ul class="nav nav-tabs">
+			<li>
+				<a href="main.html">main</a>
+			</li>
+			<li>
+				<a href="dashboard.html">Dashboard</a>
+			</li>
+			<li class="active">
+				<a href="#">Analytics</a>
+			</li>
+			<li>
+				<a href="inventory.html">Inventory</a>
+			</li>
+			<li>
+				<a href="datainput.html">Data Input</a>
+			</li>
+		</ul>
+		<br>
+		<br>
+
+		<div align="center">
+			<table calss="table">
+				<tr align="center">
+					<td><h3>Period Time</h3></td>
+				</tr>
+
+				<tr align="center">
+					<td>
+					<div align="left">
+						<span class="label label-primary">Date</span>
+					</div>
+					<input id="period_date" type="date" class="form-control">
+					<br>
+					<div align="left">
+						<span class="label label-primary">Time</span>
+					</div>
+					<select id="period_time" class="form-control">
+						<option value="01:00:00">1시</option>
+						<option value="02:00:00">2시</option>
+						<option value="03:00:00">3시</option>
+						<option value="04:00:00">4시</option>
+						<option value="05:00:00">5시</option>
+						<option value="06:00:00">6시</option>
+						<option value="07:00:00">7시</option>
+						<option value="08:00:00">8시</option>
+						<option value="09:00:00">9시</option>
+						<option value="10:00:00">10시</option>
+						<option value="11:00:00">11시</option>
+						<option value="12:00:00">12시</option>
+						<option value="13:00:00">13시</option>
+						<option value="14:00:00">14시</option>
+						<option value="15:00:00">15시</option>
+						<option value="16:00:00">16시</option>
+						<option value="17:00:00">17시</option>
+						<option value="18:00:00">18시</option>
+						<option value="19:00:00">19시</option>
+						<option value="20:00:00">20시</option>
+						<option value="21:00:00">21시</option>
+						<option value="22:00:00">22시</option>
+						<option value="23:00:00">23시</option>
+
+					</select></td>
+				</tr>
+
+				<tr align="center">
+					<td><h3>Customer Count</h3></td>
+				</tr>
+				<tr align="center">
+					<td>
+					<input type="number" id="customer_cnt" class="form-control" placeholder="Number input"/>
+					</td>
+				</tr>
+
+				<tr align="center">
+					<td>
+					<br>
+					<br>
+					<button type="button"class="btn btn-primary btn-lg btn-block" id="analyticsBtn">
+						PUSH
+					</button></td>
+				</tr>
+
+			</table>
+		</div>
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script>
+			//analytics ajax
+			$("#analyticsBtn").click(function() {
+			var temp_date=$("#period_date").val();
+			var temp_time=$("#period_time").val();
+			var temp_seconds=new Date().getSeconds();
+			var period_time=temp_date+" "+temp_time;
+			var customer_cnt=$("#customer_cnt").val();
+			var data= {
+			"period_time":period_time,"customer_cnt":customer_cnt
+			};
+			$.ajax({
+			url:"/retail/v1/smartstore/analytics/insertDemodata",type:"post",data:data,success: function(data) {
+			alert(data);
+			}
+			});
+			});
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.user.UserMapper">
+	<resultMap type="com.samsung.smartretail.mcd.vo.user.UserVO" id="userList">
+		<id property="userId" column="user_id" />
+		<result property="userName" column="user_name"/>
+		<result property="cellPhoneNr" column="cellphone_nr"/>
+		<result property="email" column="email"/>
+		<result property="birthday" column="birth_day"/>
+		<result property="anniversaryDay" column="anniversary_day"/>
+		<!--  result property="groupId" column="group_id"/>
+		<result property="roleId" column="role_id"/-->
+		<association property="group" javaType="com.samsung.smartretail.mcd.vo.group.GroupVO">
+		    <id property="groupId" column="group_id"/>
+		    <result property="groupName" column="group_name"/>
+	  	</association>
+	  	<collection  property="role" ofType="com.samsung.smartretail.mcd.vo.user.UserRoleVO">
+		    <id property="roleId" column="role_id"/>
+		    <result property="roleName" column="role_name"/>
+	  	</collection>
+	</resultMap>
+		
+	<select id="getUserList" parameterType="Map" resultMap="userList">
+		SELECT 	u.user_id as user_id,
+				u.user_name as user_name, 
+				u.cellphone_nr as cellphone_nr, 
+				u.email as email, 
+				u.birth_day as birth_day, 
+				u.anniversary_day as anniversary_day,
+				g.group_id as group_id, 
+				g.group_name as group_name,
+				ur.role_id as role_id,
+				ur.role_name as role_name
+		FROM 	user u, `group` g, group_user_mapping gm, user_role ur, user_role_mapping urm
+
+		WHERE 	u.user_id = gm.user_id
+		  AND	g.group_id = gm.group_id
+		  AND	u.user_id = urm.user_id
+		  AND	ur.role_id = urm.role_id
+		<if test='groupId != ""'>
+			AND g.group_id = #{groupId}
+		</if>
+	</select>
+	
+	<select id="getUserDetail" resultMap="userList">
+		SELECT 	u.user_id as user_id,
+				u.user_name as user_name, 
+				u.cellphone_nr as cellphone_nr, 
+				u.email as email, 
+				u.birth_day as birth_day, 
+				u.anniversary_day as anniversary_day,
+				g.group_id as group_id, 
+				g.group_name as group_name,
+				ur.role_id as role_id,
+				ur.role_name as role_name
+		FROM 	user u, `group` g, group_user_mapping gm, user_role ur, user_role_mapping urm
+		WHERE 	u.user_id = gm.user_id
+		  AND	g.group_id = gm.group_id
+		  AND	u.user_id = urm.user_id
+		  AND	ur.role_id = urm.role_id
+		  AND	g.group_id = #{0}
+		  AND	u.user_id = #{1}
+	</select>
+	
+	
+	<insert id="createUser" parameterType="com.samsung.smartretail.mcd.vo.user.UserVO" useGeneratedKeys="true">
+		INSERT INTO user 
+				(user_id, user_name, cellphone_nr, email, birth_day, anniversary_day, create_time, update_time)
+		VALUES
+				(#{userId}, #{userName}, #{cellPhoneNr}, #{email}, #{birthday}, #{anniversaryDay}, now(), now())
+		ON DUPLICATE KEY 
+		UPDATE 	cellphone_nr = #{cellPhoneNr},
+				email = #{email}, 
+				birth_day = #{birthday},
+				anniversary_day = #{anniversaryDay},
+				update_time = now()
+	</insert>
+	
+	<insert id="createUserGroupMapping" parameterType="java.util.Map" useGeneratedKeys="true">
+		INSERT INTO group_user_mapping 
+				(group_id, user_id)
+		VALUES
+				(#{groupId}, #{userId})
+	</insert>
+	
+	<insert id="createUserRoleMapping" parameterType="java.util.List" useGeneratedKeys="true">
+		INSERT INTO user_role_mapping 
+				(user_id, role_id)
+		VALUES
+	    <foreach collection="list" item="param" index="index" separator="," >
+       		(#{param.userId},#{param.roleId})
+    	</foreach>
+	</insert>
+</mapper>
+
+	

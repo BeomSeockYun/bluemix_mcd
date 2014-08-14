@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.samsung.smartretail.mcd.dao.preparation.PreparationMapper">
+
+	<resultMap type="com.samsung.smartretail.mcd.vo.preparation.PreparationVO" id="todolist">
+		<result property="idx" column="idx" />
+		<result property="to_do_id" column="to_do_id" />
+		<result property="owner_id" column="owner_id" />
+		<result property="is_checked" column="is_checked" />
+		<result property="is_canceled" column="is_canceled" />
+		<result property="is_modified" column="is_modified" />
+		<result property="is_new" column="is_new" />
+		<result property="title" column="title" />
+		<result property="category" column="category" />
+		<result property="detail" column="detail" />
+		<result property="comment" column="comment" />
+		<result property="create_date" column="create_date" />
+		<result property="created_by" column="created_by" />
+		<result property="remind_date" column="remind_date" />
+		<result property="start_date" column="start_date" />
+		<result property="end_date" column="end_date" />
+		<result property="checked_date" column="checked_date" />
+		<result property="priority" column="priority" />
+	</resultMap>
+
+	<select id="getTodolist" resultMap="todolist">
+		SELECT * FROM to_do_list WHERE owner_id=#{owner_id}
+		<choose>
+			<when test="start_date != null">
+				AND DATE_FORMAT(start_date,'%Y-%m-%d') = DATE_FORMAT(#{start_date},'%Y-%m-%d')
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(start_date,'%Y-%m-%d') = DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getNotCheckedTodolist" resultMap="todolist">
+	SELECT * FROM to_do_list WHERE owner_id=#{owner_id} AND is_checked=0
+		<choose>
+			<when test="start_date != null">
+				AND DATE_FORMAT(start_date,'%Y-%m-%d') = DATE_FORMAT(#{start_date},'%Y-%m-%d')
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(start_date,'%Y-%m-%d') = DATE_FORMAT(SYSDATE(),'%Y-%m-%d')
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="createTodolist" parameterType="java.util.Map">
+		UPDATE to_do_list SET
+		<if test="listType == true"> 
+		is_checked=#{listType} WHERE idx IN
+		<foreach collection="trueList" item="idx" open="(" close=")" separator=",">
+			#{idx}
+		</foreach>
+		</if>
+		<if test="listType == false">
+		is_checked=#{listType} WHERE idx IN
+		<foreach collection="falseList" item="idx" open="(" close=")" separator=",">
+			#{idx}
+		</foreach>
+		</if> 
+	</update>
+	
+</mapper>
