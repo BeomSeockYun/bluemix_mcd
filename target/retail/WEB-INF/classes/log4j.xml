@@ -75,21 +75,21 @@
 <logger name="audit">
 	<level value="DEBUG" />
 	<!-- appender-ref ref="console" / -->
-	<appender-ref ref="Audit" />
+	<appender-ref ref="console" />
 </logger>
 
 
 <logger name="httpclient.wire">
 	<level value="DEBUG" />
 	<!-- appender-ref ref="console" / -->
-	<appender-ref ref="MONITORING" />
+	<appender-ref ref="console" />
 </logger>
 		
 <!-- Test Debug Mode 추후 삭제 -->
 <logger name="java.sql">
 	<level value="DEBUG" />
 	<!-- appender-ref ref="console" / -->
-		<appender-ref ref="MONITORING" />		
+		<appender-ref ref="console" />		
 	</logger> 
 	
 </log4j:configuration>

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.samsung.smartretail.mcd.dao.analytics.AnalyticsMapper;
 
+
 @Service
 public class TestDataInputServiceImpl {
 
@@ -119,12 +120,12 @@ public class TestDataInputServiceImpl {
 	GregorianCalendar cal = new GregorianCalendar();
 
 	if (mode.equals("plus")) {
-	    cal.add(Calendar.DATE, value); // 현재날짜에 value 값을 더한다.
+	    cal.add(Calendar.DATE, value); // 
 	} else if (mode.equals("minus")) {
-	    cal.add(Calendar.DATE, value); // 현재날짜에 value 값을 뺀다.
+	    cal.add(Calendar.DATE, value); // 
 	}
 
-	Date date = cal.getTime(); // 연산된 날자를 생성.
+	Date date = cal.getTime(); // 
 	String setDate = fmt.format(date);
 
 	return setDate;
