@@ -1,0 +1,12 @@
+applications:
+- services:
+  - mysql-mcd
+  - Auto-Scaling-in
+  - Monitoring and Analytics-0h
+  disk_quota: 1024M
+  host: mcdtom
+  name: mcdtom
+  path: target/retail.war
+  domain: mybluemix.net
+  instances: 1
+  memory: 256M
