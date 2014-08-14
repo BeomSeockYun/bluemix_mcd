@@ -8,4 +8,7 @@ public interface LoginService {
 	ResultType logoutUser(String userId);
 	
 	int insertRegistrationId(String user_id, String registration_id);
+	
+	// Get RegistrationId
+	String getRegistrationKey(String userId);
 }

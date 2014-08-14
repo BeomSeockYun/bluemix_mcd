@@ -29,4 +29,9 @@
 		UPDATE user SET push_register_key=#{registration_id} WHERE user_id=#{user_id};
 	</update>
 	
+	<!-- Get RegistrationID -->
+	<select id="selectRegistrationId" resultMap="loginData" >
+		SELECT push_register_key from user WHERE user_id=#{user_id};
+	</select>
+	
 </mapper>

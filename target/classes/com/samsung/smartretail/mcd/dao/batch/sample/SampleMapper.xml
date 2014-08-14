@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.samsung.smartretail.mcd.dao.batch.sample.SampleMapper">
+
+	<resultMap id="SampleInfoResult" type="com.samsung.smartretail.mcd.vo.batch.sample.MemberVO">
+		<result property="mbrId" column="mbr_id" />
+		<result property="mbrNm" column="mbr_nm" />
+	</resultMap>
+
+	<select id="getMbr" parameterType="String" resultType="String"> 
+	<![CDATA[ SELECT mbr_id FROM batch_tb_cm_mbr WHERE  mbr_id = #{mbrId, jdbcType=VARCHAR} ]]>
+	</select>
+	<select id="list" resultMap="SampleInfoResult"> 
+	<![CDATA[ SELECT mbr_id , mbr_nm  FROM batch_tb_cm_mbr WHERE 1=1 ]]>
+	</select>
+	<select id="listMap" resultMap="SampleInfoResult"> 
+	<![CDATA[ SELECT mbr_id, mbr_nm FROM batch_tb_cm_mbr WHERE 1=1 ]]>
+	</select>
+	
+	<insert id="insert" parameterType="com.samsung.smartretail.mcd.vo.batch.sample.MemberVO"> 
+	<![CDATA[ INSERT INTO batch_tb_cm_mbr ( mbr_id, mbr_nm ) 
+	 VALUES ( #{mbrId, jdbcType=VARCHAR}, #{mbrNm, jdbcType=VARCHAR} ) 
+	 ]]>
+	</insert>
+
+	<insert id="insertList" parameterType="java.util.List"> 
+	  INSERT INTO batch_tb_cm_mbr ( mbr_id, mbr_nm ) VALUE
+	  
+	  <foreach collection="list" item="item" index="index" separator="," > 
+	                   ( #{item.mbrId, jdbcType=VARCHAR}, #{item.mbrNm, jdbcType=VARCHAR} )  
+	  </foreach>
+	
+	</insert>
+	
+	<update id="update" parameterType="com.samsung.smartretail.mcd.vo.batch.sample.MemberVO"> 
+		UPDATE batch_tb_cm_mbr SET
+		mbr_nm = #{mbrNm, jdbcType=VARCHAR} WHERE mbr_id = #{mbrId,
+		jdbcType=VARCHAR}
+	 </update>
+	<delete id="delete" parameterType="String">
+	  DELETE FROM batch_tb_cm_mbr
+	  WHERE mbr_id = #{mbrId, jdbcType=VARCHAR} 
+	</delete>
+</mapper>

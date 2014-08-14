@@ -72,5 +72,12 @@ public class LoginImpl implements LoginService {
 		
 		return result;
 	}
-	
+
+//Get RegistrationID
+	public String getRegistrationKey(String userId) {
+		
+		loginVO lvo = this.loginMapper.selectRegistrationId(userId);
+		
+		return lvo.getPush_register_key();
+	}	
 }

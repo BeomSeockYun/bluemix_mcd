@@ -27,7 +27,7 @@ public class InventoryBatchServiceImpl implements InventoryBatchService {
     public List<HourlyInventoryVO> getItemCountForHourlyBatch() {
 	// TODO Auto-generated method stub
 	// 한시간에 1회 배치 된다는 가정. 매시 1분에 구동.
-	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH");
 	Date date = new Date();
 	String toDate =  dateFormat.format(date);
 	Calendar c = Calendar.getInstance();
@@ -36,11 +36,9 @@ public class InventoryBatchServiceImpl implements InventoryBatchService {
 	} catch (ParseException e) {
 	    // TODO Auto-generated catch block
 	}
-	/*c.add(Calendar.HOUR_OF_DAY, -1);
+	c.add(Calendar.HOUR_OF_DAY, -1);
 	String fromDate =  dateFormat.format(c.getTime())+":00:00";
-	toDate = dateFormat.format(c.getTime())+":59:59";*/
-	c.add(Calendar.SECOND, -16);
-	String fromDate =  dateFormat.format(c.getTime());
+	toDate = dateFormat.format(c.getTime())+":59:59";
 	List<HourlyInventoryVO> list = batchInventoryMapper.getItemCountForHourlyBatch(fromDate, toDate);
 	return list;
     }

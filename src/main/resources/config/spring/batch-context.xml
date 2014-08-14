@@ -366,9 +366,9 @@
   <task:scheduler id="scheduler" pool-size="100"/>
   	<task:scheduled-tasks scheduler="scheduler">
   	<task:scheduled ref="inventoryLauncher1" method="launch" cron="00/15 * * * * ?"/>
-<!--   	<task:scheduled ref="inventoryLauncher2" method="launch" cron="00/15 * * * * ?"/>
+  	<task:scheduled ref="inventoryLauncher2" method="launch" cron="00/15 * * * * ?"/>
   	<task:scheduled ref="forecastLauncher" method="launch" cron="00/15 * * * * ?"/>
-  	<task:scheduled ref="dashboardLauncher" method="launch" cron="00/15 * * * * ?"/> -->
+  	<task:scheduled ref="dashboardLauncher" method="launch" cron="00/15 * * * * ?"/>
   </task:scheduled-tasks>
   
 	<!-- pool-size attribute optional --> 	

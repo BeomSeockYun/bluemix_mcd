@@ -13,6 +13,7 @@ public class loginVO {
 	private Timestamp account_expire_date;
 	private Timestamp cedentials_expire_date;
 	private Timestamp disabled_date;
+	private String push_register_key;	//Get RegistrationID
 	
 	public String getUserId() {
 		return userId;
@@ -73,6 +74,13 @@ public class loginVO {
 	}
 	public void setDisabled_date(Timestamp disabled_date) {
 		this.disabled_date = disabled_date;
+	}
+	
+	public String getPush_register_key() {
+		return push_register_key;
+	}
+	public void setPush_register_key(String push_register_key) {
+		this.push_register_key = push_register_key;
 	}
 	
 	@Override

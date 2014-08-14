@@ -68,6 +68,7 @@ import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 //import com.google.android.gcm.server.*;
 import com.samsung.smartretail.mcd.common.util.IdGenerator;
+import com.samsung.smartretail.mcd.service.auth.login.LoginService;
 import com.samsung.smartretail.mcd.service.push.GcmPushService;
 
 @Service
@@ -79,9 +80,10 @@ public class GcmPushServiceImpl implements GcmPushService{
 	@Value("#{appProperties['push.proxy.useYn']}") private String useProxyYn;
 	@Value("#{appProperties['push.proxy.ip']}") private String proxyIp;
 	@Value("#{appProperties['push.apikey']}") private String apiKey;
-	@Value("#{appProperties['push.mananger.registeration.id']}") private String regstrationId;
+	private String regstrationId;
 	
 	@Autowired IdGenerator idGenerator;
+	@Autowired LoginService loginService;
 
 /**
  * 
@@ -102,6 +104,10 @@ public  Boolean sendPushMessage(String id,String title, String content, String u
 
 
 	String pushId = idGenerator.generatePushId();
+	
+	// Get RegistrationId
+	regstrationId = loginService.getRegistrationKey(userId);
+	
 	logger.debug("sendMessage() >>> +++ pushId::"+pushId);
 
 

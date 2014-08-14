@@ -30,7 +30,7 @@
 	</select>
 	<!--  아래 foreach 는 실행 실패함...ㅡ.ㅡ -->
 	<update id="updateForHourlyBatch" parameterType="java.util.List">
-      <foreach collection="list" item="inventoryVo" >
+       <foreach collection="list" item="inventoryVo" >
       <![CDATA[ 
        	 UPDATE stock_inventory 
        	 SET current_level = 
@@ -38,15 +38,13 @@
        	 WHERE group_id = #{inventoryVo.groupId, jdbcType=VARCHAR} AND item_id = #{inventoryVo.itemId, jdbcType=VARCHAR};
        	 ]]>
       </foreach>
+
 	</update>
 	
 	<update id="updateOneForHourlyBatch" parameterType="com.samsung.smartretail.mcd.vo.batch.inventory.HourlyInventoryVO">
         UPDATE stock_inventory
          <set>
-         <![CDATA[
-           current_level = IF((current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}) <= 0, 0, (current_level - #{inventoryVo.decreaseCount, javaType=int, jdbcType=NUMERIC}))
-       	 WHERE group_id = #{inventoryVo.groupId, jdbcType=VARCHAR} AND item_id = #{inventoryVo.itemId, jdbcType=VARCHAR};
-       	  	 ]]>
+           current_level = (current_level - #{decreaseCount,javaType=int,jdbcType=NUMERIC})
          </set>
          <where>
            group_id = #{groupId, jdbcType=VARCHAR} AND item_id = #{itemId, jdbcType=VARCHAR};
